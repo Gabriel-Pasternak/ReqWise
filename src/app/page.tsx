@@ -9,6 +9,8 @@ import Image from "next/image";
 import { getRequirementsAction } from "@/lib/actions";
 import type { Requirement } from "@/lib/types";
 
+export const revalidate = 0; // Ensures the page is always dynamically rendered
+
 export default async function DashboardPage() {
   const requirements = await getRequirementsAction();
 

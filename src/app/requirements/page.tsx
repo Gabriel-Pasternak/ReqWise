@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { FilePlus, Edit3, Trash2 } from "lucide-react";
+import { FilePlus } from "lucide-react"; // Removed Edit3, Trash2 as they are in RequirementActions
 import type { Requirement } from "@/lib/types";
 import { getRequirementsAction } from "@/lib/actions";
-import { RequirementActions } from "@/components/requirements/RequirementActions"; // For delete
+import { RequirementActions } from "@/components/requirements/RequirementActions";
+
+export const revalidate = 0; // Ensures the page is always dynamically rendered
 
 export default async function RequirementsPage() {
   const requirements = await getRequirementsAction();
