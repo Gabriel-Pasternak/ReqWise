@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,28 +37,37 @@ body {
     --input: 220 30% 92%; /* Similar for inputs */
     --ring: 250 57% 61%; /* Primary color for focus rings */
 
-    --chart-1: 250 57% 61%; /* Primary */
-    --chart-2: 240 67% 80%; /* Lighter Lavender */
-    --chart-3: 250 57% 45%; /* Darker Primary */
-    --chart-4: 220 50% 70%; /* Muted Blue */
-    --chart-5: 240 40% 60%; /* Muted Purple */
+    /* Chart colors - ensure keys match those used in StatusDashboard chartConfig (CSS var friendly) */
+    --chart-Draft: 250 57% 61%; /* Primary for Draft */
+    --chart-InReview: 240 67% 80%; /* Lighter Lavender for In Review */
+    --chart-Approved: 250 57% 45%; /* Darker Primary for Approved */
+    --chart-Implemented: 220 50% 70%; /* Muted Blue for Implemented */
+    --chart-Verified: 240 40% 60%; /* Muted Purple for Verified */
+    --chart-Obsolete: 220 30% 80%; /* Lighter muted gray-blue for Obsolete */
+    
+    /* Fallback Chart colors if the specific status ones are not targeted directly */
+    --chart-1: 250 57% 61%; 
+    --chart-2: 240 67% 80%; 
+    --chart-3: 250 57% 45%; 
+    --chart-4: 220 50% 70%; 
+    --chart-5: 240 40% 60%;
     
     --radius: 0.5rem;
 
     /* Sidebar specific colors for light theme */
-    --sidebar-background: 208 80% 96%; /* Slightly off-white blue, cleaner */
-    --sidebar-foreground: 240 10% 20%; /* Dark text */
-    --sidebar-primary: 250 57% 61%; /* Slate Blue for active items */
-    --sidebar-primary-foreground: 0 0% 100%; /* White text on primary */
-    --sidebar-accent: 240 67% 92%; /* Soft Lavender for hover */
-    --sidebar-accent-foreground: 250 57% 30%; /* Darker Slate Blue for text on accent */
+    --sidebar-background: 208 80% 96%; 
+    --sidebar-foreground: 240 10% 20%; 
+    --sidebar-primary: 250 57% 61%; 
+    --sidebar-primary-foreground: 0 0% 100%; 
+    --sidebar-accent: 240 67% 92%; 
+    --sidebar-accent-foreground: 250 57% 30%; 
     --sidebar-border: 220 25% 88%;
     --sidebar-ring: 250 57% 61%;
   }
 
   .dark {
-    --background: 240 10% 10%; /* Dark slate */
-    --foreground: 208 100% 95%; /* Light text */
+    --background: 240 10% 10%; 
+    --foreground: 208 100% 95%; 
 
     --card: 240 10% 12%;
     --card-foreground: 208 100% 95%;
@@ -65,8 +75,8 @@ body {
     --popover: 240 10% 8%;
     --popover-foreground: 208 100% 95%;
 
-    --primary: 250 57% 61%; /* Slate Blue */
-    --primary-foreground: 240 10% 5%; /* Dark text on primary in dark mode */
+    --primary: 250 57% 61%; 
+    --primary-foreground: 240 10% 5%; 
 
     --secondary: 240 10% 18%;
     --secondary-foreground: 208 100% 90%;
@@ -74,7 +84,7 @@ body {
     --muted: 240 10% 20%;
     --muted-foreground: 208 50% 70%;
 
-    --accent: 250 40% 50%; /* Darker, more saturated accent based on Slate Blue */
+    --accent: 250 40% 50%; 
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -82,8 +92,17 @@ body {
 
     --border: 240 10% 25%;
     --input: 240 10% 22%;
-    --ring: 250 57% 65%; /* Lighter primary for rings */
+    --ring: 250 57% 65%; 
 
+    /* Chart colors for dark theme - ensure keys match those used in StatusDashboard chartConfig (CSS var friendly) */
+    --chart-Draft: 250 57% 65%; 
+    --chart-InReview: 240 67% 70%; 
+    --chart-Approved: 250 57% 50%; 
+    --chart-Implemented: 220 50% 60%; 
+    --chart-Verified: 240 40% 50%;
+    --chart-Obsolete: 240 10% 35%;
+
+    /* Fallback Chart colors if the specific status ones are not targeted directly */
     --chart-1: 250 57% 61%;
     --chart-2: 240 67% 70%;
     --chart-3: 250 57% 50%;

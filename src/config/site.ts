@@ -1,5 +1,6 @@
+
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, ListChecks, FilePlus, Settings, GitFork } from "lucide-react";
+import { LayoutDashboard, ListChecks, FilePlus, Settings, GitFork, BarChartHorizontalBig } from "lucide-react"; // Added BarChartHorizontalBig
 
 export type NavItem = {
   title: string;
@@ -11,16 +12,16 @@ export type NavItem = {
 export type SiteConfig = {
   name: string;
   description: string;
-  url: string; // Add your app's URL here
-  ogImage: string; // Add your OG image URL here
+  url: string;
+  ogImage: string;
   mainNav: NavItem[];
 };
 
 export const siteConfig: SiteConfig = {
   name: "ReqWise",
   description: "Intelligent Requirement Management",
-  url: "https://reqwise.example.com", // Replace with your actual URL
-  ogImage: "https://reqwise.example.com/og.png", // Replace with your actual OG image
+  url: "https://reqwise.example.com", 
+  ogImage: "https://reqwise.example.com/og.png", 
   mainNav: [
     {
       title: "Dashboard",
@@ -28,7 +29,7 @@ export const siteConfig: SiteConfig = {
       icon: LayoutDashboard,
     },
     {
-      title: "Requirements",
+      title: "Requirements List", // Changed for clarity
       href: "/requirements",
       icon: ListChecks,
     },
@@ -37,17 +38,24 @@ export const siteConfig: SiteConfig = {
       href: "/requirements/new",
       icon: FilePlus,
     },
+    // Example of how to add another nav item if needed for e.g. analytics/reporting
+    // {
+    //   title: "Analytics",
+    //   href: "/analytics",
+    //   icon: BarChartHorizontalBig, 
+    //   disabled: true, 
+    // },
     {
       title: "Version Control",
       href: "/versions",
       icon: GitFork,
-      disabled: true, // For Version Tree feature
+      disabled: true, 
     },
     {
       title: "Settings",
       href: "/settings",
       icon: Settings,
-      disabled: true, // For Custom Fields management
+      disabled: true, 
     },
   ],
 };

@@ -1,7 +1,8 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,23 +21,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { TagSuggestions } from "./TagSuggestions";
 import { FileUpload } from "../shared/FileUpload";
-import { priorities, riskLevels, type Priority, type RiskLevel, type CustomFieldDefinition } from "@/lib/types";
-import { createRequirementAction, suggestTagsForDescriptionAction, getCustomFieldDefinitionsAction } from "@/lib/actions";
+import { priorities, riskLevels, type Priority, type RiskLevel, type CustomFieldDefinition, requirementStatuses, RequirementStatus } from "@/lib/types";
+import { createRequirementAction, suggestTagsForDescriptionAction, getCustomFieldDefinitionsAction, RequirementDataInput } from "@/lib/actions"; // Updated import
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2, Save } from "lucide-react";
 
+// Schema now reflects RequirementDataInput from actions.ts for consistency
 const requirementFormSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters." }),
   description: z.string().min(10, { message: "Description must be at least 10 characters." }),
   priority: z.enum(priorities),
   riskLevel: z.enum(riskLevels),
   owner: z.string().min(2, { message: "Owner name must be at least 2 characters." }),
+  status: z.enum(requirementStatuses).optional(), // Added status
   customFields: z.record(z.any()).optional(),
+  // Tags are handled separately and merged before submission
 });
 
 type RequirementFormValues = z.infer<typeof requirementFormSchema>;
+
+// TODO: Accept initialData for editing in a future step
+// interface RequirementFormProps {
+//   initialData?: Requirement; 
+//   onSubmitAction: (data: RequirementDataInput) => Promise<any>; // Generalized submit
+// }
 
 export function RequirementForm() {
   const { toast } = useToast();
@@ -55,6 +65,7 @@ export function RequirementForm() {
       priority: "Medium",
       riskLevel: "Low",
       owner: "",
+      status: "Draft", // Default status for new requirements
       customFields: {},
     },
   });
@@ -66,7 +77,7 @@ export function RequirementForm() {
         const defaultCustomValues: Record<string, any> = {};
         defs.forEach(def => {
             if (def.type === 'select' && def.options && def.options.length > 0) {
-                defaultCustomValues[def.id] = def.options[0]; // Default to first option
+                defaultCustomValues[def.id] = def.options[0];
             } else {
                 defaultCustomValues[def.id] = "";
             }
@@ -95,16 +106,15 @@ export function RequirementForm() {
     }
   }, [form, toast]);
 
-  // Debounced fetch for tag suggestions
   useEffect(() => {
     const description = form.watch("description");
     if (!description || description.length < 10) {
-      setAiSuggestedTags([]); // Clear suggestions if description is too short
+      setAiSuggestedTags([]);
       return;
     }
     const timer = setTimeout(() => {
       fetchTagSuggestions();
-    }, 1000); // Debounce for 1 second
+    }, 1000);
     return () => clearTimeout(timer);
   }, [form.watch("description"), fetchTagSuggestions]);
 
@@ -112,16 +122,22 @@ export function RequirementForm() {
   async function onSubmit(data: RequirementFormValues) {
     setIsSubmitting(true);
     try {
-      // Here, you would augment `data` with `currentTags` before sending to the action
-      const submissionData = { ...data, tags: currentTags }; 
+      const submissionData: RequirementDataInput = { 
+        ...data, 
+        tags: currentTags,
+        priority: data.priority as Priority, // Ensure types match action
+        riskLevel: data.riskLevel as RiskLevel,
+        status: data.status as RequirementStatus | undefined,
+      }; 
       const result = await createRequirementAction(submissionData);
 
       if (result.success && result.requirement) {
         toast({
           title: "Requirement Created",
-          description: `Requirement "${result.requirement.title}" has been successfully created.`,
+          description: `Requirement "${result.requirement.title}" (ID: ${result.requirement.id}) has been successfully created.`,
         });
-        router.push("/requirements"); // Or to the new requirement's detail page: /requirements/${result.requirement.id}
+        // router.push(`/requirements/${result.requirement.id}`); // Go to detail page
+        router.push("/requirements"); 
       } else {
         const errorMsg = result.error || "Failed to create requirement.";
         toast({
@@ -185,7 +201,6 @@ export function RequirementForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Left Column: Core Fields & Custom Fields */}
           <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader>
@@ -229,7 +244,6 @@ export function RequirementForm() {
             </Card>
           </div>
 
-          {/* Right Column: Attributes, Tags, File Upload */}
           <div className="space-y-6">
             <Card>
               <CardHeader><CardTitle>Attributes</CardTitle></CardHeader>
@@ -277,6 +291,22 @@ export function RequirementForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {requirementStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </CardContent>
             </Card>
 
@@ -298,7 +328,7 @@ export function RequirementForm() {
               <CardContent>
                 <FileUpload />
                  <FormDescription className="mt-2 text-xs">
-                  Attach related documents or import requirements from CSV/Excel.
+                  Attach related documents or import requirements from CSV/Excel. (Import logic not yet implemented)
                 </FormDescription>
               </CardContent>
             </Card>

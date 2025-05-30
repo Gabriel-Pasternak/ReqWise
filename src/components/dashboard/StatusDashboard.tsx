@@ -1,49 +1,85 @@
+
 "use client";
 
+import type { Requirement, RequirementStatus } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Legend } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
 
-const chartData = [
-  { milestone: "Alpha Release", draft: 5, inReview: 2, approved: 10, implemented: 8 },
-  { milestone: "Beta Release", draft: 2, inReview: 3, approved: 15, implemented: 10 },
-  { milestone: "GA Release", draft: 1, inReview: 1, approved: 20, implemented: 18 },
-];
+interface StatusDashboardProps {
+  requirements: Requirement[];
+}
 
 const chartConfig = {
-  draft: { label: "Draft", color: "hsl(var(--chart-1))" },
-  inReview: { label: "In Review", color: "hsl(var(--chart-2))" },
-  approved: { label: "Approved", color: "hsl(var(--chart-3))" },
-  implemented: { label: "Implemented", color: "hsl(var(--chart-4))" },
+  Draft: { label: "Draft", color: "hsl(var(--chart-1))" },
+  "In Review": { label: "In Review", color: "hsl(var(--chart-2))" },
+  Approved: { label: "Approved", color: "hsl(var(--chart-3))" },
+  Implemented: { label: "Implemented", color: "hsl(var(--chart-4))" },
+  Verified: { label: "Verified", color: "hsl(var(--chart-5))" },
+  Obsolete: { label: "Obsolete", color: "hsl(var(--muted))" }, // Using a muted color for Obsolete
 } satisfies ChartConfig;
 
+export function StatusDashboard({ requirements }: StatusDashboardProps) {
+  const processChartData = (data: Requirement[]) => {
+    const statusCounts: Record<RequirementStatus, number> = {
+      Draft: 0,
+      "In Review": 0,
+      Approved: 0,
+      Implemented: 0,
+      Verified: 0,
+      Obsolete: 0,
+    };
 
-export function StatusDashboard() {
+    data.forEach(req => {
+      if (statusCounts.hasOwnProperty(req.status)) {
+        statusCounts[req.status]++;
+      }
+    });
+    
+    // For BarChart, data needs to be an array of objects.
+    // We can represent this as a single "Overall" category.
+    return [{ 
+      milestone: "Overall Project", // Single category for all requirements
+      ...statusCounts 
+    }];
+  };
+
+  const chartData = processChartData(requirements);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Requirement Status Dashboard</CardTitle>
-        <CardDescription>Real-time heatmap showing requirement completion vs. project milestones.</CardDescription>
+        <CardDescription>Overview of requirement statuses across the project.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="milestone" tickLine={false} axisLine={false} tickMargin={8} />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="draft" fill="var(--color-draft)" radius={4} />
-              <Bar dataKey="inReview" fill="var(--color-inReview)" radius={4} />
-              <Bar dataKey="approved" fill="var(--color-approved)" radius={4} />
-              <Bar dataKey="implemented" fill="var(--color-implemented)" radius={4} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-        <p className="mt-4 text-sm text-muted-foreground text-center">
-          This is a placeholder for the heatmap visualization. Actual heatmap implementation will require more detailed data and potentially a different chart type or custom SVG rendering.
-        </p>
+        {requirements.length > 0 ? (
+          <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="milestone" tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis allowDecimals={false} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Legend />
+                {Object.keys(chartConfig).map((statusKey) => (
+                  <Bar 
+                    key={statusKey} 
+                    dataKey={statusKey} 
+                    fill={`var(--color-${statusKey.replace(/\s/g, '')})`} // CSS variable friendly key
+                    radius={4} 
+                    stackId="a" // Stack bars if desired, or remove for grouped
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground text-center">
+            No requirement data available to display the status dashboard. Add some requirements first!
+          </p>
+        )}
       </CardContent>
     </Card>
   );

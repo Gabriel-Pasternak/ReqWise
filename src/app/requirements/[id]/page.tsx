@@ -1,19 +1,18 @@
+
 import { AppShell } from "@/components/AppShell";
 import { VersionTreeDisplay } from "@/components/requirements/VersionTreeDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getRequirementByIdAction } from "@/lib/actions"; // Mock action
+import { getRequirementByIdAction } from "@/lib/actions";
 import type { Requirement } from "@/lib/types";
 import { ArrowLeft, Edit, Trash2, CalendarDays, User, Tag, ShieldCheck, AlertTriangle, FileText } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { RequirementActions } from "@/components/requirements/RequirementActions"; // For delete/edit buttons
 
-// This is a Server Component
 export default async function RequirementDetailPage({ params }: { params: { id: string } }) {
-  // In a real app, fetch the requirement data based on params.id
-  // For now, using a mock or assuming it comes from a source
   const requirement: Requirement | undefined = await getRequirementByIdAction(params.id);
 
   if (!requirement) {
@@ -38,8 +37,11 @@ export default async function RequirementDetailPage({ params }: { params: { id: 
           <Link href="/requirements"><ArrowLeft className="mr-2 h-4 w-4"/> Back to List</Link>
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" disabled><Edit className="mr-2 h-4 w-4"/> Edit</Button>
-          <Button variant="destructive" disabled><Trash2 className="mr-2 h-4 w-4"/> Delete</Button>
+          <Button variant="outline" asChild>
+            <Link href={`/requirements/${requirement.id}/edit`}><Edit className="mr-2 h-4 w-4"/> Edit</Link>
+          </Button>
+          {/* Delete button now handled by RequirementActions if preferred, or keep separate */}
+          <RequirementActions requirementId={requirement.id} listContext={false} />
         </div>
       </div>
 
@@ -52,7 +54,7 @@ export default async function RequirementDetailPage({ params }: { params: { id: 
                   <CardTitle className="text-2xl">{requirement.title}</CardTitle>
                   <CardDescription>ID: {requirement.id}</CardDescription>
                 </div>
-                <Badge variant={requirement.status === 'Approved' ? 'default' : 'secondary'}>{requirement.status}</Badge>
+                <Badge variant={requirement.status === 'Approved' ? 'default' : requirement.status === 'In Review' ? 'secondary' : 'outline'}>{requirement.status}</Badge>
               </div>
             </CardHeader>
             <CardContent>
