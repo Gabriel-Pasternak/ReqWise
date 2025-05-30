@@ -20,7 +20,7 @@ export default async function DashboardPage() {
 
   const recentActivity = requirements
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    .slice(0, 3); // Get latest 3 for example
+    .slice(0, 5); // Show up to 5 recent items
 
   return (
     <AppShell>
@@ -64,7 +64,7 @@ export default async function DashboardPage() {
         <StatusDashboard requirements={requirements} />
       </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
+      <div className="mt-6 grid gap-6"> {/* md:grid-cols-2 removed here */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
@@ -89,18 +89,7 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Feature Spotlight: Context Tagging</CardTitle>
-            <CardDescription>Let AI help you organize requirements.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Image src="https://placehold.co/600x300.png" alt="AI Tagging illustration" width={600} height={300} className="rounded-md object-cover" data-ai-hint="artificial intelligence network"/>
-            <p className="text-sm">
-              Our NLP-powered context tagging automatically suggests relevant tags for project phase, module, and regulatory standards as you type your requirements.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Feature Spotlight Card has been removed */}
       </div>
     </AppShell>
   );
